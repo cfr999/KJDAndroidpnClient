@@ -57,44 +57,11 @@ public class SkimActivity extends Activity implements AbsListView.OnScrollListen
         setContentView(R.layout.activity_skim);
         initData();
         initView();
-        playVideo();
         mImageLoader = ImageLoader.build(this);
     }
 
 
-    private void playVideo(){
-        // 获取屏幕宽高
-        DisplayMetrics dm = new DisplayMetrics();
-        this.getWindowManager().getDefaultDisplay().getMetrics(dm);
-        vv.setLayoutParams(new LinearLayout.LayoutParams(dm.widthPixels,
-                dm.heightPixels / 2));
 
-
-//        Glide.with(this)
-//                .load(URL+"p1.jpg")
-//                .into(iv);
-        // 获取外部存储器的状态
-        if (Environment.getExternalStorageState().equals(
-                Environment.MEDIA_MOUNTED)) {
-            // 获取外部存贮器的文件对象
-            File file = Environment.getExternalStorageDirectory();
-            Log.d("", file.getAbsolutePath());
-            File mv = new File(file, "mnt/usb/sda1/bb.mp4");
-
-            // 设置播放视频的路径
-            // vv.setVideoPath(mv.getAbsolutePath());
-            vv.setVideoURI(Uri.parse(URL + "aa.mp4"));
-
-            // 初始化多媒体控制器
-            controller = new MediaController(this);
-            // 设置videoview的控制器
-            vv.setMediaController(controller);
-            // 设置控制器所控制的媒体播放器
-            controller.setMediaPlayer(vv);
-            vv.start();
-        }
-
-    }
     private void initData() {
         String[] imageUrls = {
                 "http://b.hiphotos.baidu.com/zhidao/pic/item/a6efce1b9d16fdfafee0cfb5b68f8c5495ee7bd8.jpg",
@@ -148,8 +115,6 @@ public class SkimActivity extends Activity implements AbsListView.OnScrollListen
 
     private void initView() {
         mImageGridView = (GridView) findViewById(R.id.gridView1);
-        vv = (VideoView) findViewById(R.id.vv);
-        iv = (CircleImageView) findViewById(R.id.iv);
         mImageAdapter = new ImageAdapter(this);
         mImageGridView.setAdapter(mImageAdapter);
         mImageGridView.setOnScrollListener(this);

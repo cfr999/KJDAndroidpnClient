@@ -32,22 +32,8 @@
         android:layout_height="match_parent"
         android:padding="2dp">
 
-        <VideoView
-            android:id="@+id/vv"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_gravity="bottom"
-            android:layout_weight="4"
-            android:height="300pt"
-            android:width="200pt" />
-
-        <org.androidpn.view.CircleImageView
-            xmlns:app="http://schemas.android.com/apk/res-auto"
-            android:id="@+id/iv"
-            android:layout_width="500dp"
-            android:layout_height="500dp"
-
-            android:layout_weight="3"
-            app:civ_border_width="2dp" />
+        <org.androidpn.videoplayer.VideoListLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
     </LinearLayout>
 </LinearLayout>
