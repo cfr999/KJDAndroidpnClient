@@ -9,6 +9,7 @@ import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import org.androidpn.client.NotificationHistory;
 import org.androidpn.demoapp.R;
 import org.androidpn.videoplayer.VideoItemData;
 
@@ -23,7 +24,10 @@ import java.util.List;
  */
 public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHolder> {
 
-    private List<VideoItemData> list;
+//    private List<VideoItemData> list;
+
+    private List<NotificationHistory> list;
+
     public VideoAdapter(Context context){
         list=new ArrayList<>();
     }
@@ -47,11 +51,19 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHol
         return list.size();
     }
 
-    public void refresh(List<VideoItemData> list){
+//    public void refresh(List<VideoItemData> list){
+//        this.list.clear();
+//        this.list.addAll(list);
+//        notifyDataSetChanged();
+//    }
+
+    public void refresh(List<NotificationHistory> list){
         this.list.clear();
         this.list.addAll(list);
         notifyDataSetChanged();
     }
+
+
 
     public class VideoViewHolder extends RecyclerView.ViewHolder {
         private FrameLayout videoLayout;
@@ -71,7 +83,7 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.VideoViewHol
         public void update(final int position) {
             this.position = position;
             title.setText(list.get(position).getTitle());
-            title.setText(list.get(position).getVideosource());
+//            title.setText(list.get(position).getVideosource());
             showView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {

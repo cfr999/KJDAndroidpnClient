@@ -17,13 +17,17 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 
 import com.google.gson.Gson;
+import com.yarolegovich.lovelydialog.LovelyStandardDialog;
 
+import org.androidpn.client.NotificationHistory;
 import org.androidpn.demoapp.R;
 import org.androidpn.videoplayer.media.IjkVideoView;
 import org.androidpn.videoplayer.media.VideoAdapter;
+import org.litepal.crud.DataSupport;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.util.List;
 
 
 import tv.danmaku.ijk.media.player.IMediaPlayer;
@@ -51,6 +55,9 @@ public class VideoListLayout extends RelativeLayout {
     private RelativeLayout smallLayout;
     private ImageView close;
 
+    //获取通知数据
+    List<NotificationHistory> listNotification;
+
     public VideoListLayout(Context context) {
         super(context);
         initView(context);
@@ -77,6 +84,7 @@ public class VideoListLayout extends RelativeLayout {
     }
 
     private void initView(Context context){
+        listNotification = DataSupport.findAll(NotificationHistory.class);
         LayoutInflater.from(context).inflate(R.layout.layout_video_list,this,true);
         this.context = context;
         mLayoutManager = new LinearLayoutManager(context);
@@ -91,7 +99,8 @@ public class VideoListLayout extends RelativeLayout {
 
         String data = readTextFileFromRawResourceId(context, R.raw.video_list);
         listData = new Gson().fromJson(data, VideoListData.class);
-        adapter.refresh(listData.getList());
+//        adapter.refresh(listData.getList());
+        adapter.refresh(listNotification);
         smallLayout = (RelativeLayout) findViewById(R.id.small_layout);
         close = (ImageView) findViewById(R.id.close);
 
@@ -188,7 +197,22 @@ public class VideoListLayout extends RelativeLayout {
                 FrameLayout frameLayout = (FrameLayout) view.findViewById(R.id.layout_video);
                 frameLayout.removeAllViews();
                 frameLayout.addView(videoItemView);
-                videoItemView.start(listData.getList().get(position).getMp4_url());
+                //播放视频
+                if (listNotification.get(position).getVideoUrl() != null){
+                    videoItemView.start(listNotification.get(position).getVideoUrl());
+                }else {
+                    new LovelyStandardDialog(context)
+                            .setTitle(context.getResources().getString(R.string.dialog_title))
+                            .setMessage(context.getResources().getString(R.string.dialog_message))
+                            .setCancelable(true)
+                            .show();
+                }
+//                if (listNotification != null){
+//                    videoItemView.start(listNotification.get(position).getVideoUrl());
+//                }else {
+//                    videoItemView.start(listData.getList().get(position).getMp4_url());
+//                }
+
                 lastPostion = position;
             }
         });

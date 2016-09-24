@@ -84,4 +84,12 @@
     <string name="can_not_play">can not play this video</string>
 
     <string name="not_support">player not support this device</string>
+
+    //notificationdetail界面
+    <string name="natificationdetail_ok">ok</string>
+    <string name="notificationdetail_player">player</string>
+
+    <string name="dialog_title">无效网址</string>
+    <string name="dialog_message">请播放其他视频！</string>
+
 </resources>

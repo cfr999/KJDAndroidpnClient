@@ -24,6 +24,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
+import org.androidpn.client.NotificationDetailsActivity;
 import org.androidpn.client.NotificationHistoryActivity;
 import org.androidpn.client.ServiceManager;
 
@@ -79,6 +80,14 @@ public class DemoAppActivity extends Activity {
 			@Override
 			public void onClick(View v) {
 				startActivity(new Intent(DemoAppActivity.this , SkimActivity.class));
+			}
+		});
+
+		Button test = (Button) findViewById(R.id.test);
+		test.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				startActivity(new Intent(DemoAppActivity.this , NotificationDetailsActivity.class));
 			}
 		});
 

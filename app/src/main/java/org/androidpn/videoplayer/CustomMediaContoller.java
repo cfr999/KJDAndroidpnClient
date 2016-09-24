@@ -12,10 +12,13 @@ import android.os.Message;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.GestureDetector;
+import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.Surface;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.GridLayout;
+import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.MediaController;
@@ -277,9 +280,13 @@ public class CustomMediaContoller implements IMediaController {
             @Override
             public void onClick(View v) {
                 Log.e("full", "full");
+               View view = LayoutInflater.from(context).inflate(R.layout.activity_skim ,null);
+                LinearLayout linearLayout = (LinearLayout) view.findViewById(R.id.parentGrid);
                 if (getScreenOrientation((Activity) context) == ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE) {
+                    linearLayout.setVisibility(View.GONE);
                     ((Activity) context).setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
                 } else {
+                    linearLayout.setVisibility(View.GONE);
                     ((Activity) context).setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
                 }
             }

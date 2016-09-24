@@ -16,6 +16,7 @@
     <application
         android:name="org.litepal.LitePalApplication"
         android:icon="@mipmap/icon"
+        android:theme="@style/AppTheme"
         android:label="@string/app_name">
         <activity
             android:name=".DemoAppActivity"
@@ -28,6 +29,7 @@
         </activity>
         <activity
             android:name="org.androidpn.client.NotificationDetailsActivity"
+            android:theme="@style/AppTheme"
             android:label="Notification Details"></activity>
         <activity
             android:name="org.androidpn.client.NotificationSettingsActivity"
@@ -35,6 +37,9 @@
         <activity
             android:name="org.androidpn.client.NotificationHistoryActivity"
             android:label="Notification Histories"></activity>
+
+        <activity android:name=".SkimActivity">
+        </activity>
 
         <service
             android:name="org.androidpn.client.NotificationService"
@@ -55,9 +60,7 @@
 			<meta-data android:name="ANDROIDPN_API_KEY"
 			android:value="1234567890" />
         -->
-        <activity android:name=".SkimActivity"
-                  android:theme="@android:style/Theme.Holo.Light">
-        </activity>
+
     </application>
 
 </manifest>

@@ -36,6 +36,9 @@ import com.android.volley.toolbox.ImageLoader.ImageCache;
 import com.android.volley.toolbox.NetworkImageView;
 import com.android.volley.toolbox.Volley;
 
+import org.androidpn.demoapp.R;
+import org.androidpn.demoapp.SkimActivity;
+
 /**
  * Activity for displaying the notification details view.
  *
@@ -51,13 +54,23 @@ public class NotificationDetailsActivity extends Activity {
     private String callbackActivityClassName;
 	private RequestQueue mQueue;
 
+    //信息标题
+    private TextView mNotificationTitle;
+    //信息内容
+    private TextView mNotificationMessage;
+    //图片
+    private NetworkImageView mNetworkImageView;
+    private Button mOk;
+    private Button mPlayer;
+
+
     public NotificationDetailsActivity() {
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        setContentView(R.layout.notificaton_detail);
         SharedPreferences sharedPrefs = this.getSharedPreferences(
                 Constants.SHARED_PREFERENCE_NAME, Context.MODE_PRIVATE);
         callbackActivityPackageName = sharedPrefs.getString(
@@ -74,7 +87,7 @@ public class NotificationDetailsActivity extends Activity {
                 .getStringExtra(Constants.NOTIFICATION_TITLE);
         String notificationMessage = intent
                 .getStringExtra(Constants.NOTIFICATION_MESSAGE);
-        String notificationUri = intent
+       final String notificationUri = intent
                 .getStringExtra(Constants.NOTIFICATION_URI);
 		String notificationImageUri = intent
 				.getStringExtra(Constants.NOTIFICATION_IMAGE_URI);
@@ -86,6 +99,62 @@ public class NotificationDetailsActivity extends Activity {
         Log.d(LOGTAG, "notificationUri=" + notificationUri);
 		Log.d(LOGTAG, "notificationUri=" + notificationImageUri);
 
+        mNotificationTitle = (TextView) findViewById(R.id.title);
+        mNotificationMessage = (TextView) findViewById(R.id.message);
+        mNetworkImageView = (NetworkImageView) findViewById(R.id.networkImage);
+        mOk = (Button) findViewById(R.id.ok);
+        mPlayer = (Button) findViewById(R.id.player);
+        //标题
+        mNotificationTitle.setText(notificationTitle);
+        //内容
+        mNotificationMessage.setText(notificationMessage);
+        ImageLoader imageLoader = new ImageLoader(mQueue, new ImageCache() {
+            @Override
+            public void putBitmap(String url, Bitmap bitmap) {
+
+            }
+
+            @Override
+            public Bitmap getBitmap(String url) {
+                return null;
+            }
+        });
+        mNetworkImageView.setImageUrl(notificationImageUri, imageLoader);
+
+        mOk.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent;
+                if (notificationUri != null
+                        && notificationUri.length() > 0
+                        && (notificationUri.startsWith("http:") || notificationUri.startsWith("https:")
+                        || notificationUri.startsWith("tel:") || notificationUri
+                        .startsWith("geo:"))) {
+                    intent = new Intent(Intent.ACTION_VIEW, Uri.parse(notificationUri));
+                } else {
+                    intent = new Intent().setClassName(
+                            callbackActivityPackageName,
+                            callbackActivityClassName);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    // intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                    // intent.setFlags(Intent.FLAG_ACTIVITY_FORWARD_RESULT);
+                    // intent.setFlags(Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
+                }
+
+                NotificationDetailsActivity.this.startActivity(intent);
+                NotificationDetailsActivity.this.finish();
+            }
+        });
+
+        mPlayer.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(NotificationDetailsActivity.this , SkimActivity.class));
+            }
+        });
+
         //        Display display = getWindowManager().getDefaultDisplay();
         //        View rootView;
         //        if (display.getWidth() > display.getHeight()) {
@@ -94,9 +163,9 @@ public class NotificationDetailsActivity extends Activity {
         //            rootView = null;
         //        }
 
-        View rootView = createView(notificationTitle, notificationMessage,
-				notificationUri, notificationImageUri);
-        setContentView(rootView);
+//        View rootView = createView(notificationTitle, notificationMessage,
+//				notificationUri, notificationImageUri);
+//        setContentView(rootView);
     }
 
     private View createView(final String title, final String message,

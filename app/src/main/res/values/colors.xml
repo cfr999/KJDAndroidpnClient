@@ -3,4 +3,10 @@
     <color name="colorPrimary">#3F51B5</color>
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
+    <color name="colorBlack">#1F1F1F</color>
+    //notificationDetail界面
+    <color name="notificationDetail_backgound">#ffeeeeee</color>
+    <color name="notificationDetail_title">#ff000000</color>
+    <color name="notificationDetail_message">#ff333333</color>
+
 </resources>

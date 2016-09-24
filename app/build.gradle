@@ -35,6 +35,7 @@ dependencies {
     compile files('libs/asmack.jar')
 
     compile 'com.google.code.gson:gson:2.6.2'
+    compile 'com.yarolegovich:lovely-dialog:1.0.4'
 
     compile 'tv.danmaku.ijk.media:ijkplayer-java:0.5.1'
     compile 'tv.danmaku.ijk.media:ijkplayer-armv7a:0.5.1'

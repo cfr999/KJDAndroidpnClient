@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
+import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
@@ -23,10 +24,15 @@ import android.widget.MediaController;
 import android.widget.VideoView;
 
 
+import com.yarolegovich.lovelydialog.LovelyStandardDialog;
 
+import org.androidpn.client.Constants;
+import org.androidpn.client.NotificationHistory;
 import org.androidpn.utils.ImageLoader;
 import org.androidpn.utils.MyUtils;
 import org.androidpn.view.CircleImageView;
+import org.androidpn.view.CustomVideoView;
+import org.litepal.crud.DataSupport;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -34,11 +40,6 @@ import java.util.List;
 
 public class SkimActivity extends Activity implements AbsListView.OnScrollListener{
 
-    //以下变量音频播放相关
-    private VideoView vv;
-    private CircleImageView iv;
-    private MediaController controller;
-    private final String URL = "http://192.168.1.19/";
 
     //以下变量图片相关
     private List<String> mUrList = new ArrayList<String>();
@@ -51,15 +52,47 @@ public class SkimActivity extends Activity implements AbsListView.OnScrollListen
     private boolean mIsWifi = false;
     private boolean mCanGetBitmapFromNetWork = false;
 
+
+    private ImageView mImageView;
+    private CustomVideoView mVideoView;
+    private List<NotificationHistory> mList = new ArrayList<NotificationHistory>();
+    private NotificationHistory mNotificationHistory;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_skim);
+        mImageLoader = ImageLoader.build(this);
+        mList = DataSupport.findAll(NotificationHistory.class);
+        if (mList.size() !=0){
+            mNotificationHistory =  mList.get(0);
+        }
         initData();
         initView();
-        mImageLoader = ImageLoader.build(this);
+
     }
 
+    private void initView() {
+
+        mImageView = (ImageView) findViewById(R.id.image);
+        mVideoView = (CustomVideoView) findViewById(R.id.video_view);
+//        if (mNotificationHistory != null){
+            mImageLoader.bindBitmap( "http://pic41.nipic.com/20140518/4135003_102912523000_2.jpg",
+                    mImageView, mImageWidth, mImageWidth);
+            mVideoView.setMediaController(new MediaController(this));
+            mVideoView.setVideoURI(
+                    Uri.parse("http://flv2.bn.netease.com/videolib3/1604/28/fVobI0704/SD/fVobI0704-mobile.mp4"));
+//        }else {
+//            new LovelyStandardDialog(this)
+//                    .setTitle(getResources().getString(R.string.dialog_title))
+//                    .setMessage(getResources().getString(R.string.dialog_message))
+//                    .setCancelable(true)
+//                    .show();
+//        }
+
+        mVideoView.start();
+        mVideoView.requestFocus();
+
+    }
 
 
     private void initData() {
@@ -104,90 +137,8 @@ public class SkimActivity extends Activity implements AbsListView.OnScrollListen
         for (String url : imageUrls) {
             mUrList.add(url);
         }
-        int screenWidth = MyUtils.getScreenMetrics(this).widthPixels;
-        int space = (int) MyUtils.dp2px(this, 20f);
-        mImageWidth = (screenWidth - space) / 3;
-        mIsWifi = MyUtils.isWifi(this);
-        if (mIsWifi) {
-            mCanGetBitmapFromNetWork = true;
-        }
     }
 
-    private void initView() {
-        mImageGridView = (GridView) findViewById(R.id.gridView1);
-        mImageAdapter = new ImageAdapter(this);
-        mImageGridView.setAdapter(mImageAdapter);
-        mImageGridView.setOnScrollListener(this);
-
-        if (!mIsWifi) {
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setMessage("初次使用会从网络下载大概5MB的图片，确认要下载吗？");
-            builder.setTitle("注意");
-            builder.setPositiveButton("是", new OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    mCanGetBitmapFromNetWork = true;
-                    mImageAdapter.notifyDataSetChanged();
-                }
-            });
-            builder.setNegativeButton("否", null);
-            builder.show();
-        }
-    }
-
-    private class ImageAdapter extends BaseAdapter {
-        private LayoutInflater mInflater;
-        private Drawable mDefaultBitmapDrawable;
-
-        private ImageAdapter(Context context) {
-            mInflater = LayoutInflater.from(context);
-            mDefaultBitmapDrawable = context.getResources().getDrawable(R.mipmap.image_default);
-        }
-
-        @Override
-        public int getCount() {
-            return mUrList.size();
-        }
-
-        @Override
-        public String getItem(int position) {
-            return mUrList.get(position);
-        }
-
-        @Override
-        public long getItemId(int position) {
-            return position;
-        }
-
-        @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-            ViewHolder holder = null;
-            if (convertView == null) {
-                convertView = mInflater.inflate(R.layout.image_list_item,parent, false);
-                holder = new ViewHolder();
-                holder.imageView = (ImageView) convertView.findViewById(R.id.image);
-                convertView.setTag(holder);
-            } else {
-                holder = (ViewHolder) convertView.getTag();
-            }
-            ImageView imageView = holder.imageView;
-            final String tag = (String)imageView.getTag();
-            final String uri = getItem(position);
-            if (!uri.equals(tag)) {
-                imageView.setImageDrawable(mDefaultBitmapDrawable);
-            }
-            if (mIsGridViewIdle && mCanGetBitmapFromNetWork) {
-                imageView.setTag(uri);
-                mImageLoader.bindBitmap(uri, imageView, mImageWidth, mImageWidth);
-            }
-            return convertView;
-        }
-
-    }
-
-    private static class ViewHolder {
-        public ImageView imageView;
-    }
 
     @Override
     public void onScrollStateChanged(AbsListView view, int scrollState) {
