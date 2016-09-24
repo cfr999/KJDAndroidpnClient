@@ -17,16 +17,26 @@ package org.androidpn.demoapp;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Environment;
+import android.preference.PreferenceManager;
+import android.support.v7.widget.AppCompatCheckBox;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.Toast;
 
+import org.androidpn.client.Constants;
 import org.androidpn.client.NotificationDetailsActivity;
 import org.androidpn.client.NotificationHistoryActivity;
 import org.androidpn.client.ServiceManager;
+import org.androidpn.event.ConnectSuccess;
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -46,8 +56,15 @@ import java.util.Properties;
  * @author Sehwan Noh (devnoh@gmail.com)
  */
 public class DemoAppActivity extends Activity {
-	
-	
+
+    private SharedPreferences mSharedPreferences;
+    private SharedPreferences.Editor mEditor;
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        EventBus.getDefault().register(this);
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -56,17 +73,37 @@ public class DemoAppActivity extends Activity {
         super.onCreate(savedInstanceState);
         
         setContentView(R.layout.main);
-        
-       
 
+        mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        //服务器地址
+        final EditText editText = (EditText) findViewById(R.id.edit_serverip);
+
+        //是否保存服务器地址
+        final AppCompatCheckBox remmeberAddress = (AppCompatCheckBox)findViewById(R.id.saveaddress);
         // Settings
         Button okButton = (Button) findViewById(R.id.btn_settings);
+
+        Button historyButton = (Button) findViewById(R.id.btn_histories);
+
+        Button image = (Button) findViewById(R.id.image);
+
+        Button test = (Button) findViewById(R.id.test);
+
+        Button con_btn=(Button)findViewById(R.id.btn_connect);
+
+        boolean isRememberAddress = mSharedPreferences.getBoolean(Constants.IS_SAVE_ADDRESS_SERVICE , false);
+
+        if (isRememberAddress){
+            editText.setText(mSharedPreferences.getString(Constants.SERVICE_ADDRESS , ""));
+            remmeberAddress.setChecked(true);
+        }
+
         okButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
                 ServiceManager.viewNotificationSettings(DemoAppActivity.this);
             }
         });
-		Button historyButton = (Button) findViewById(R.id.btn_histories);
+
 		historyButton.setOnClickListener(new View.OnClickListener() {
 
 			public void onClick(View v) {
@@ -75,15 +112,16 @@ public class DemoAppActivity extends Activity {
 				startActivity(intent);
 			}
 		});
-		Button image = (Button) findViewById(R.id.image);
+
 		image.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				startActivity(new Intent(DemoAppActivity.this , SkimActivity.class));
+
 			}
 		});
 
-		Button test = (Button) findViewById(R.id.test);
+
 		test.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -91,7 +129,7 @@ public class DemoAppActivity extends Activity {
 			}
 		});
 
-        Button con_btn=(Button)findViewById(R.id.btn_connect);
+
         con_btn.setOnClickListener(new View.OnClickListener() {
 			
 			@Override
@@ -166,10 +204,32 @@ public class DemoAppActivity extends Activity {
 				// tagsList.add("");
 				serviceManager.setTags(tagsList);
 
+                mEditor = mSharedPreferences.edit();
+                if (remmeberAddress.isChecked()){
+                    String address = editText.getText().toString().trim();
+                    mEditor.putString(Constants.SERVICE_ADDRESS , address);
+                    mEditor.putBoolean(Constants.IS_SAVE_ADDRESS_SERVICE , true);
+
+                }else {
+                    mEditor.clear();
+                }
+                mEditor.commit();
 			}
 		});
         
         
     }
 
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void JumpToSkimActivity(ConnectSuccess connectSuccess){
+        Toast.makeText(this , connectSuccess.getConnectSuccess() , Toast.LENGTH_SHORT).show();
+        startActivity(new Intent(this , SkimActivity.class));
+
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        EventBus.getDefault().unregister(this);
+    }
 }

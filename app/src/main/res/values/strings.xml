@@ -92,4 +92,6 @@
     <string name="dialog_title">无效网址</string>
     <string name="dialog_message">请播放其他视频！</string>
 
+    <string name="main_saveAddress">保存服务器地址</string>
+
 </resources>

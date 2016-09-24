@@ -4,6 +4,8 @@
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
     <color name="colorBlack">#1F1F1F</color>
+    <color name="checkBox">#EDEDED</color>
+    <color name="checkBox_background">#EEEEE0</color>
     //notificationDetail界面
     <color name="notificationDetail_backgound">#ffeeeeee</color>
     <color name="notificationDetail_title">#ff000000</color>

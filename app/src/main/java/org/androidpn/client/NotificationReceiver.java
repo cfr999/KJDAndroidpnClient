@@ -20,6 +20,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
+import org.androidpn.event.ConnectSuccess;
+import org.greenrobot.eventbus.EventBus;
+
 /** 
  * Broadcast receiver that handles push notification messages from the server.
  * This should be registered as receiver in AndroidManifest.xml. 
@@ -70,6 +73,9 @@ public final class NotificationReceiver extends BroadcastReceiver {
             Notifier notifier = new Notifier(context);
             notifier.notify(notificationId, notificationApiKey,
                     notificationTitle, notificationMessage, notificationUri, notificationImageUri);
+
+            //通知SkimActivity跳转
+            EventBus.getDefault().post(new ConnectSuccess());
         }
 
         //        } else if (Constants.ACTION_NOTIFICATION_CLICKED.equals(action)) {

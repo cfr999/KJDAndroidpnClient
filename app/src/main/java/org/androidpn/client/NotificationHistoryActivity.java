@@ -57,8 +57,11 @@ public class NotificationHistoryActivity extends Activity {
 			intent.putExtra(Constants.NOTIFICATION_MESSAGE,
 					history.getMessage());
 			intent.putExtra(Constants.NOTIFICATION_URI, history.getUri());
+			//传送图片地址
 			intent.putExtra(Constants.NOTIFICATION_IMAGE_URI,
 					history.getImageUrl());
+			//传送视频地址
+			intent.putExtra(Constants.NOTIFICATION_VIDEO_URI , history.getVideoUrl());
 			startActivity(intent);
 		}
 	});

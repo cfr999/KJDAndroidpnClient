@@ -71,6 +71,8 @@ public class Constants {
     public static final String NOTIFICATION_URI = "NOTIFICATION_URI";
 	public static final String NOTIFICATION_IMAGE_URI = "NOTIFICATION_IMAGE_URI";
 
+    //视频地址
+    public static final String NOTIFICATION_VIDEO_URI="NOTIFICATION_VIDEO_URI";
     // INTENT ACTIONS
 
     public static final String ACTION_SHOW_NOTIFICATION = "org.androidpn.client.SHOW_NOTIFICATION";
@@ -79,6 +81,13 @@ public class Constants {
 
     public static final String ACTION_NOTIFICATION_CLEARED = "org.androidpn.client.NOTIFICATION_CLEARED";
 	public static final String SETTINGS_AUTOSTART = "SETTINGS_AUTOSTART";
+
+
+    //保存服务器地址
+    public static final String IS_SAVE_ADDRESS_SERVICE = "IS_SAVE_ADDRESS_SERVICE";
+
+    //服务器地址
+    public static final String SERVICE_ADDRESS = "SERVICE_ADDRESS";
 
 
 }

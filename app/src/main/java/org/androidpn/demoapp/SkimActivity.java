@@ -7,6 +7,7 @@ import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
+import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -32,11 +33,18 @@ import org.androidpn.utils.ImageLoader;
 import org.androidpn.utils.MyUtils;
 import org.androidpn.view.CircleImageView;
 import org.androidpn.view.CustomVideoView;
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 import org.litepal.crud.DataSupport;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+
+import app.dinus.com.loadingdrawable.LoadingView;
+import app.dinus.com.loadingdrawable.render.LoadingDrawable;
+import app.dinus.com.loadingdrawable.render.circle.jump.GuardLoadingRenderer;
 
 public class SkimActivity extends Activity implements AbsListView.OnScrollListener{
 
@@ -57,6 +65,10 @@ public class SkimActivity extends Activity implements AbsListView.OnScrollListen
     private CustomVideoView mVideoView;
     private List<NotificationHistory> mList = new ArrayList<NotificationHistory>();
     private NotificationHistory mNotificationHistory;
+    private LoadingView mLoadingView;
+
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -75,6 +87,8 @@ public class SkimActivity extends Activity implements AbsListView.OnScrollListen
 
         mImageView = (ImageView) findViewById(R.id.image);
         mVideoView = (CustomVideoView) findViewById(R.id.video_view);
+        mLoadingView = (LoadingView) findViewById(R.id.guard_view);
+//        mLoadingView.setLoadingRenderer(new GuardLoadingRenderer.Builder(this).build());
 //        if (mNotificationHistory != null){
             mImageLoader.bindBitmap( "http://pic41.nipic.com/20140518/4135003_102912523000_2.jpg",
                     mImageView, mImageWidth, mImageWidth);
@@ -91,6 +105,12 @@ public class SkimActivity extends Activity implements AbsListView.OnScrollListen
 
         mVideoView.start();
         mVideoView.requestFocus();
+        mVideoView.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+            @Override
+            public void onPrepared(MediaPlayer mp) {
+               mLoadingView.setVisibility(View.GONE);
+            }
+        });
 
     }
 
@@ -140,6 +160,7 @@ public class SkimActivity extends Activity implements AbsListView.OnScrollListen
     }
 
 
+
     @Override
     public void onScrollStateChanged(AbsListView view, int scrollState) {
         if (scrollState == AbsListView.OnScrollListener.SCROLL_STATE_IDLE) {
@@ -154,6 +175,12 @@ public class SkimActivity extends Activity implements AbsListView.OnScrollListen
     public void onScroll(AbsListView view, int firstVisibleItem,
                          int visibleItemCount, int totalItemCount) {
         // ignored
+
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
 
     }
 }

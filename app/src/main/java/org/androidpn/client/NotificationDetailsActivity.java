@@ -28,7 +28,9 @@ import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.MediaController;
 import android.widget.TextView;
+import android.widget.VideoView;
 
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.ImageLoader;
@@ -60,6 +62,7 @@ public class NotificationDetailsActivity extends Activity {
     private TextView mNotificationMessage;
     //图片
     private NetworkImageView mNetworkImageView;
+    private VideoView mVideoView;
     private Button mOk;
     private Button mPlayer;
 
@@ -71,6 +74,8 @@ public class NotificationDetailsActivity extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.notificaton_detail);
+
+
         SharedPreferences sharedPrefs = this.getSharedPreferences(
                 Constants.SHARED_PREFERENCE_NAME, Context.MODE_PRIVATE);
         callbackActivityPackageName = sharedPrefs.getString(
@@ -89,9 +94,21 @@ public class NotificationDetailsActivity extends Activity {
                 .getStringExtra(Constants.NOTIFICATION_MESSAGE);
        final String notificationUri = intent
                 .getStringExtra(Constants.NOTIFICATION_URI);
+        //获得图片地址
 		String notificationImageUri = intent
 				.getStringExtra(Constants.NOTIFICATION_IMAGE_URI);
 
+        //获得视频地址
+        String notificationVideoUrl = intent
+                .getStringExtra(Constants.NOTIFICATION_VIDEO_URI);
+
+        mVideoView = (VideoView) findViewById(R.id.detail_videoview);
+        mVideoView.setMediaController(new MediaController(this));
+        mVideoView.setVideoURI(
+                Uri.parse("http://flv2.bn.netease.com/videolib3/1604/28/fVobI0704/SD/fVobI0704-mobile.mp4"));
+        mVideoView.start();
+        mVideoView.requestFocus();
+        
         Log.d(LOGTAG, "notificationId=" + notificationId);
         Log.d(LOGTAG, "notificationApiKey=" + notificationApiKey);
         Log.d(LOGTAG, "notificationTitle=" + notificationTitle);
