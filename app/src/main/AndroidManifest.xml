@@ -33,6 +33,7 @@
             android:label="Notification Details"></activity>
         <activity
             android:name="org.androidpn.client.NotificationSettingsActivity"
+            android:theme="@android:style/Theme.Holo.Light.Dialog"
             android:label="Notification Settings"></activity>
         <activity
             android:name="org.androidpn.client.NotificationHistoryActivity"
