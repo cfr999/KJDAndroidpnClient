@@ -1,11 +1,10 @@
 package org.androidpn.utils;
 
+import java.io.FileDescriptor;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.util.Log;
-
-import java.io.FileDescriptor;
 
 public class ImageResizer {
     private static final String TAG = "ImageResizer";
@@ -14,7 +13,7 @@ public class ImageResizer {
     }
 
     public Bitmap decodeSampledBitmapFromResource(Resources res,
-                                                  int resId, int reqWidth, int reqHeight) {
+            int resId, int reqWidth, int reqHeight) {
         // First decode with inJustDecodeBounds=true to check dimensions
         final BitmapFactory.Options options = new BitmapFactory.Options();
         options.inJustDecodeBounds = true;

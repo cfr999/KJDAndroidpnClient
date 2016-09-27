@@ -1,50 +1,26 @@
 package org.androidpn.demoapp;
 
 import android.app.Activity;
-import android.app.AlertDialog;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.content.DialogInterface.OnClickListener;
-import android.content.Intent;
-import android.graphics.drawable.Drawable;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
-import android.util.DisplayMetrics;
-import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.BaseAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.MediaController;
-import android.widget.VideoView;
 
 
-import com.yarolegovich.lovelydialog.LovelyStandardDialog;
-
-import org.androidpn.client.Constants;
 import org.androidpn.client.NotificationHistory;
 import org.androidpn.utils.ImageLoader;
-import org.androidpn.utils.MyUtils;
-import org.androidpn.view.CircleImageView;
 import org.androidpn.view.CustomVideoView;
-import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.Subscribe;
-import org.greenrobot.eventbus.ThreadMode;
 import org.litepal.crud.DataSupport;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
 import app.dinus.com.loadingdrawable.LoadingView;
-import app.dinus.com.loadingdrawable.render.LoadingDrawable;
-import app.dinus.com.loadingdrawable.render.circle.jump.GuardLoadingRenderer;
 
 public class SkimActivity extends Activity implements AbsListView.OnScrollListener{
 

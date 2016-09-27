@@ -1,22 +1,5 @@
 package org.androidpn.utils;
 
-import android.annotation.TargetApi;
-import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.os.Build;
-import android.os.Build.VERSION_CODES;
-import android.os.Environment;
-import android.os.Handler;
-import android.os.Looper;
-import android.os.Message;
-import android.os.StatFs;
-import android.support.v4.util.LruCache;
-import android.util.Log;
-import android.widget.ImageView;
-
-import org.androidpn.demoapp.R;
-
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -34,6 +17,25 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+
+
+
+import android.annotation.TargetApi;
+import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.os.Build;
+import android.os.Build.VERSION_CODES;
+import android.os.Environment;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
+import android.os.StatFs;
+import android.support.v4.util.LruCache;
+import android.util.Log;
+import android.widget.ImageView;
+
+import org.androidpn.demoapp.R;
 
 public class ImageLoader {
 
@@ -140,7 +142,7 @@ public class ImageLoader {
     }
 
     public void bindBitmap(final String uri, final ImageView imageView,
-                           final int reqWidth, final int reqHeight) {
+            final int reqWidth, final int reqHeight) {
         imageView.setTag(TAG_KEY_URI, uri);
         Bitmap bitmap = loadBitmapFromMemCache(uri);
         if (bitmap != null) {
@@ -226,7 +228,7 @@ public class ImageLoader {
     }
 
     private Bitmap loadBitmapFromDiskCache(String url, int reqWidth,
-                                           int reqHeight) throws IOException {
+            int reqHeight) throws IOException {
         if (Looper.myLooper() == Looper.getMainLooper()) {
             Log.w(TAG, "load bitmap from UI Thread, it's not recommended!");
         }

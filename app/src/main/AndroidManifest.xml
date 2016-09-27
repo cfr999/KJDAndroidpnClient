@@ -53,6 +53,7 @@
 
         <receiver android:name="org.androidpn.client.BootCompletedReceiver">
             <intent-filter>
+                <!--开机广播-->
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>

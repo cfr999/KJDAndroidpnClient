@@ -134,7 +134,7 @@ public class XmppManager {
                             xmppManager.getNotificationPacketListener());
                     xmppManager.getConnection().disconnect();
                 }
-                xmppManager.runTask();
+            xmppManager.runTask();
             }
 
         };
@@ -306,13 +306,25 @@ public class XmppManager {
             this.xmppManager = XmppManager.this;
         }
 
+        private String getPrefixPort(){
+            return "192.168.1.";
+        }
+        ConnectionConfiguration connConfig;
         public void run() {
             Log.i(LOGTAG, "ConnectTask.run()...");
 
             if (!xmppManager.isConnected()) {
                 // Create the configuration for this new connection
-                ConnectionConfiguration connConfig = new ConnectionConfiguration(
-                        xmppHost, xmppPort);
+
+                for (int i = 0 ; i < 255 ; i++){
+                    String s = getPrefixPort() + i;
+                    connConfig = new ConnectionConfiguration(
+                            xmppHost, xmppPort);
+                    Log.d("ServicAddress" , s);
+                }
+
+//                ConnectionConfiguration connConfig = new ConnectionConfiguration(
+//                        xmppHost, xmppPort);
                 // connConfig.setSecurityMode(SecurityMode.disabled);
                 connConfig.setSecurityMode(SecurityMode.required);
                 connConfig.setSASLAuthenticationEnabled(false);
