@@ -4,7 +4,10 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
 	android:background="@color/main_background">
+
+
 	<TextView
+		android:id="@+id/hinttext"
 	    android:layout_width="fill_parent" 
 	    android:layout_height="wrap_content"
 	    android:layout_weight="1.0"

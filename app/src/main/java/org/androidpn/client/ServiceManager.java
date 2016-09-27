@@ -77,7 +77,7 @@ public final class ServiceManager {
         //        //            Log.e(LOGTAG, "Please set the androidpn api key in the manifest file.");
         //        //            throw new RuntimeException();
         //        //        }
-
+		//从外部存储读取androidpn参数
         props = loadProperties();
         apiKey = props.getProperty("apiKey", "");
         xmppHost = props.getProperty("xmppHost", "127.0.0.1");

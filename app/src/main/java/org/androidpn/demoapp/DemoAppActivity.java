@@ -27,12 +27,14 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import org.androidpn.client.Constants;
 import org.androidpn.client.NotificationDetailsActivity;
 import org.androidpn.client.NotificationHistoryActivity;
 import org.androidpn.client.ServiceManager;
+import org.androidpn.event.ConnectReturn;
 import org.androidpn.event.ConnectSuccess;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -60,6 +62,8 @@ public class DemoAppActivity extends Activity {
     private SharedPreferences mSharedPreferences;
     private SharedPreferences.Editor mEditor;
 
+	private TextView mHintText;
+
     @Override
     protected void onStart() {
         super.onStart();
@@ -75,6 +79,9 @@ public class DemoAppActivity extends Activity {
         setContentView(R.layout.main);
 
         mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+
+		mHintText = (TextView) findViewById(R.id.hinttext);
+
         //服务器地址
         final EditText editText = (EditText) findViewById(R.id.edit_serverip);
 
@@ -144,20 +151,20 @@ public class DemoAppActivity extends Activity {
 		            Log.e("ZLJ", "Could not find the properties file.", e);
 		            // e.printStackTrace();
 		        }*/
-		        //����ļ���androidpn.properties
-		        File propfile=new File(Environment.getExternalStorageDirectory(),"androidpn.properties");
+		        //读取外部文件androidpn.properties
+		        File propfile = new File(Environment.getExternalStorageDirectory(),"androidpn.properties");
 		        
 		        try {
-		        	//�ж��ļ����Ƿ���ڣ�����������½�һ���ļ���
+		        	//如果外部文件不存在创建一个新的
 		        	if (!propfile.exists())
 			        	propfile.createNewFile();
 					FileOutputStream fileOutputStream = new FileOutputStream(propfile);
-					//���rawĿ¼��androidpn��Դid
+					//获取raw文件下的androidpn ID
 					int id = DemoAppActivity.this.getResources().getIdentifier("androidpn", "raw",
 		            		DemoAppActivity.this.getPackageName());
-					//��ȡ��Դ
+					//读取androidpn文件
 					InputStream inStream = DemoAppActivity.this.getResources().openRawResource(id);
-					//ÿ�ζ�ȡ10���ֽ�
+					//每次读取的字节
 					byte[] buffer = new byte[10];  
 			        ByteArrayOutputStream outStream = new ByteArrayOutputStream();
 			        int len = 0;  
@@ -165,7 +172,7 @@ public class DemoAppActivity extends Activity {
 			            outStream.write(buffer, 0, len);  
 			        }  
 			        byte[] bs = outStream.toByteArray(); 
-			        //�Ѷ�ȡ����Դд�뵽android.properties
+			        //
 			        fileOutputStream.write(bs);  
 			        outStream.close();  
 			        inStream.close();  
@@ -173,13 +180,14 @@ public class DemoAppActivity extends Activity {
 			        fileOutputStream.close(); 
 			        props.load(new FileInputStream(Environment.getExternalStorageDirectory()+"/androidpn.properties"));
 			        EditText serverip=(EditText)findViewById(R.id.edit_serverip);
-			        //��ȡ����ķ�������ַ
+			        //读取手动输入的服务器地址
 			        String str_serverip=serverip.getText().toString();
 			        Log.d("ZLJ","SERVERIP =="+str_serverip);
 			        props.setProperty("xmppHost", str_serverip);
+					//从外部存储中读取androidpn文件
 			        OutputStream fos;
 			        fos = new FileOutputStream(Environment.getExternalStorageDirectory()+"/androidpn.properties");
-			        //���� Properties ���е������б�����Ԫ�ضԣ�д���������
+			        //把参数存储都Properties
         			props.store(fos, null);
         			fos.flush();
         			fos.close();
@@ -226,6 +234,12 @@ public class DemoAppActivity extends Activity {
         startActivity(new Intent(this , SkimActivity.class));
 
     }
+
+	@Subscribe(threadMode = ThreadMode.MAIN)
+	public void isConnect(ConnectReturn connectReturn){
+		Toast.makeText(this , ""+connectReturn.isConnect()  ,Toast.LENGTH_SHORT).show();
+		mHintText.setText(connectReturn.isConnect());
+	}
 
     @Override
     protected void onStop() {

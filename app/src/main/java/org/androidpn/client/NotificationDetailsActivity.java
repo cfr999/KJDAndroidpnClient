@@ -27,6 +27,7 @@ import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.MediaController;
 import android.widget.TextView;
@@ -37,6 +38,8 @@ import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.ImageLoader.ImageCache;
 import com.android.volley.toolbox.NetworkImageView;
 import com.android.volley.toolbox.Volley;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 
 import org.androidpn.demoapp.R;
 import org.androidpn.demoapp.SkimActivity;
@@ -61,7 +64,7 @@ public class NotificationDetailsActivity extends Activity {
     //信息内容
     private TextView mNotificationMessage;
     //图片
-    private NetworkImageView mNetworkImageView;
+    private ImageView mNetworkImageView;
     private VideoView mVideoView;
     private Button mOk;
     private Button mPlayer;
@@ -102,12 +105,7 @@ public class NotificationDetailsActivity extends Activity {
         String notificationVideoUrl = intent
                 .getStringExtra(Constants.NOTIFICATION_VIDEO_URI);
 
-        mVideoView = (VideoView) findViewById(R.id.detail_videoview);
-        mVideoView.setMediaController(new MediaController(this));
-        mVideoView.setVideoURI(
-                Uri.parse("http://flv2.bn.netease.com/videolib3/1604/28/fVobI0704/SD/fVobI0704-mobile.mp4"));
-        mVideoView.start();
-        mVideoView.requestFocus();
+
         
         Log.d(LOGTAG, "notificationId=" + notificationId);
         Log.d(LOGTAG, "notificationApiKey=" + notificationApiKey);
@@ -118,25 +116,39 @@ public class NotificationDetailsActivity extends Activity {
 
         mNotificationTitle = (TextView) findViewById(R.id.title);
         mNotificationMessage = (TextView) findViewById(R.id.message);
-        mNetworkImageView = (NetworkImageView) findViewById(R.id.networkImage);
+        mNetworkImageView = (ImageView) findViewById(R.id.networkImage);
         mOk = (Button) findViewById(R.id.ok);
         mPlayer = (Button) findViewById(R.id.player);
         //标题
         mNotificationTitle.setText(notificationTitle);
         //内容
         mNotificationMessage.setText(notificationMessage);
-        ImageLoader imageLoader = new ImageLoader(mQueue, new ImageCache() {
-            @Override
-            public void putBitmap(String url, Bitmap bitmap) {
+//        ImageLoader imageLoader = new ImageLoader(mQueue, new ImageCache() {
+//            @Override
+//            public void putBitmap(String url, Bitmap bitmap) {
+//
+//            }
+//
+//            @Override
+//            public Bitmap getBitmap(String url) {
+//                return null;
+//            }
+//        });
+//        mNetworkImageView.setImageUrl(notificationImageUri, imageLoader);
+        //加载图片
+        Glide.with(this).load("http://img2.3lian.com/2014/c7/51/d/26.jpg")
+                .crossFade()
+                .placeholder(R.mipmap.image_default)
+                .diskCacheStrategy(DiskCacheStrategy.ALL)
+                .into(mNetworkImageView);
 
-            }
-
-            @Override
-            public Bitmap getBitmap(String url) {
-                return null;
-            }
-        });
-        mNetworkImageView.setImageUrl(notificationImageUri, imageLoader);
+        //播放视频
+        mVideoView = (VideoView) findViewById(R.id.detail_videoview);
+        mVideoView.setMediaController(new MediaController(this));
+        mVideoView.setVideoURI(
+                Uri.parse("http://flv2.bn.netease.com/videolib3/1604/28/fVobI0704/SD/fVobI0704-mobile.mp4"));
+        mVideoView.start();
+        mVideoView.requestFocus();
 
         mOk.setOnClickListener(new View.OnClickListener() {
             @Override

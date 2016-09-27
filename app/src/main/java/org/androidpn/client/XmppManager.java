@@ -21,6 +21,9 @@ import android.content.SharedPreferences.Editor;
 import android.os.Handler;
 import android.util.Log;
 
+import org.androidpn.event.ConnectReturn;
+import org.androidpn.event.ConnectSuccess;
+import org.greenrobot.eventbus.EventBus;
 import org.jivesoftware.smack.ConnectionConfiguration;
 import org.jivesoftware.smack.ConnectionConfiguration.SecurityMode;
 import org.jivesoftware.smack.ConnectionListener;
@@ -76,6 +79,7 @@ public class XmppManager {
 
     private Handler handler;
 
+    //存储线程
     private List<Runnable> taskList;
 
     private boolean running = false;
@@ -223,6 +227,7 @@ public class XmppManager {
         return uuidRaw.replaceAll("-", "");
     }
 
+   //判断是否连接上
     private boolean isConnected() {
         return connection != null && connection.isConnected();
     }
@@ -341,6 +346,9 @@ public class XmppManager {
                 //xmppManager.runTask(); ZHANG 20160901 REMOVE
 
             } else {
+                //发送连接成功信息
+                EventBus.getDefault().post(new ConnectReturn());
+
                 Log.i(LOGTAG, "XMPP connected already");
                 xmppManager.runTask();
             }
