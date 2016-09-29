@@ -237,8 +237,8 @@ public class DemoAppActivity extends Activity {
 
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void isConnect(ConnectReturn connectReturn){
-		Toast.makeText(this , ""+connectReturn.isConnect()  ,Toast.LENGTH_SHORT).show();
-		mHintText.setText(connectReturn.isConnect());
+		Toast.makeText(this , ""+connectReturn.getConnect()  ,Toast.LENGTH_SHORT).show();
+		mHintText.setText(connectReturn.getConnect());
 	}
 
     @Override

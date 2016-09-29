@@ -6,15 +6,15 @@ package org.androidpn.event;
 
 public class ConnectReturn {
 
-    private final static String connect ="Connect Successful";
+    private  String connect ;
 
 
 
-    public ConnectReturn() {
-
+    public ConnectReturn(String connect ) {
+         this.connect = connect;
     }
 
-    public String isConnect() {
+    public String getConnect() {
         return connect;
     }
 }

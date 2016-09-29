@@ -42,6 +42,7 @@ import org.jivesoftware.smack.provider.ProviderManager;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.Vector;
 import java.util.concurrent.Future;
 
 /**
@@ -82,6 +83,9 @@ public class XmppManager {
     //存储线程
     private List<Runnable> taskList;
 
+    //ArrayList是线程不安的，作者使用很多代码保证线程安全，不如直接使用Vector
+    private List<Runnable> taskVector;
+
     private boolean running = false;
 
     private Future<?> futureTask;
@@ -103,7 +107,10 @@ public class XmppManager {
         notificationPacketListener = new NotificationPacketListener(this);
 
         handler = new Handler();
+        //初始化集合
         taskList = new ArrayList<Runnable>();
+        taskVector = new Vector<>();
+
         reconnection = new ReconnectionThread(this);
     }
 
@@ -111,15 +118,7 @@ public class XmppManager {
         return context;
     }
 
-    public void connect() {
-        Log.d(LOGTAG, "connect()...");
-        submitLoginTask();
-    }
 
-    public void disconnect() {
-        Log.d(LOGTAG, "disconnect()...");
-        terminatePersistentConnection();
-    }
 
     public void terminatePersistentConnection() {
         Log.d(LOGTAG, "terminatePersistentConnection()...");
@@ -134,7 +133,7 @@ public class XmppManager {
                             xmppManager.getNotificationPacketListener());
                     xmppManager.getConnection().disconnect();
                 }
-            xmppManager.runTask();
+//            xmppManager.runTask();
             }
 
         };
@@ -192,7 +191,7 @@ public class XmppManager {
     public void reregisterAccount() {
         removeAccount();
         submitLoginTask();
-        runTask();
+//        runTask();
     }
 
     public List<Runnable> getTaskList() {
@@ -203,16 +202,32 @@ public class XmppManager {
         return futureTask;
     }
 
-    public void runTask() {
+    public void runTaskVector(){
+        taskVector.add(new ConnectTask());
+        taskVector.add(new RegisterTask());
+        taskVector.add(new LoginTask());
+        for (Runnable runnable : taskVector){
+            futureTask = taskSubmitter.submit(runnable);
+        }
+    }
+
+    //z这个程序这里的写法很死板，他的目的只是想ConnectTask，RegisterTask ，LoginTask
+    //依次执行
+   public void runTask() {
         Log.d(LOGTAG, "runTask()...");
         synchronized (taskList) {
             running = false;
             futureTask = null;
             if (!taskList.isEmpty()) {
-                Runnable runnable = (Runnable) taskList.get(0);
-                taskList.remove(0);
+                for(Runnable runnable : taskList){
+                    futureTask = taskSubmitter.submit(runnable);
+                }
                 running = true;
-                futureTask = taskSubmitter.submit(runnable);
+                taskList.clear();
+//                Runnable runnable = (Runnable) taskList.get(0);
+//                taskList.remove(0);
+//                running = true;
+//                futureTask = taskSubmitter.submit(runnable);
                 if (futureTask == null) {
                     taskTracker.decrease();
                 }
@@ -227,6 +242,8 @@ public class XmppManager {
         return uuidRaw.replaceAll("-", "");
     }
 
+
+
    //判断是否连接上
     private boolean isConnected() {
         return connection != null && connection.isConnected();
@@ -240,6 +257,17 @@ public class XmppManager {
     private boolean isRegistered() {
         return sharedPrefs.contains(Constants.XMPP_USERNAME)
                 && sharedPrefs.contains(Constants.XMPP_PASSWORD);
+    }
+
+    public void connect() {
+        Log.d(LOGTAG, "connect()...");
+//        submitLoginTask();
+        runTaskVector();
+    }
+
+    public void disconnect() {
+        Log.d(LOGTAG, "disconnect()...");
+        terminatePersistentConnection();
     }
 
     private void submitConnectTask() {
@@ -342,7 +370,15 @@ public class XmppManager {
                     ProviderManager.getInstance().addIQProvider("notification",
                             "androidpn:iq:notification",
                             new NotificationIQProvider());
-                    xmppManager.runTask();//ZHANG 20160901 ADD
+
+                    //在这里提交其他连个任务,xmppManager.runTask在这里调用一次就够了，以后不用再调用了
+                    //因为里面的任务提交完了，剩下的就等待线程池依次执行这些任务（感觉本程序的作者对线程池不熟悉）
+//                    xmppManager.runTask();//ZHANG 20160901 ADD
+
+
+
+//                    EventBus.getDefault().
+//                            post(new ConnectReturn("tastList count:"+taskList.size()));
 
                 } catch (XMPPException e) {
                     Log.e(LOGTAG, "XMPP connection failed", e);
@@ -352,17 +388,17 @@ public class XmppManager {
                      * **/
                     xmppManager.dropTask(2);
                     xmppManager.startReconnectionThread();
-                    xmppManager.runTask();
+//                    xmppManager.runTask();
                 }
 
                 //xmppManager.runTask(); ZHANG 20160901 REMOVE
 
             } else {
                 //发送连接成功信息
-                EventBus.getDefault().post(new ConnectReturn());
+//                EventBus.getDefault().post(new ConnectReturn());
 
                 Log.i(LOGTAG, "XMPP connected already");
-                xmppManager.runTask();
+//                xmppManager.runTask(); //已在runTask做处理，一次性提交任务，此时taskList为空。
             }
         }
     }
@@ -427,7 +463,7 @@ public class XmppManager {
                                     isRegisterSuccessed=true;
                                     Log.i(LOGTAG,"Account registered successfully");
                                     if(!hasDropTask){
-                                    	xmppManager.runTask();
+//                                    	xmppManager.runTask();
                                     }
                                 }
                             }
@@ -461,14 +497,16 @@ public class XmppManager {
 	                {
 		                xmppManager.dropTask(1);
 		                xmppManager.startReconnectionThread();
-		                xmppManager.runTask();
+//		                xmppManager.runTask();
 		                hasDropTask=true;
 	                }
                 }
 
             } else {
                 Log.i(LOGTAG, "Account registered already");
-                xmppManager.runTask();
+//                xmppManager.runTask();
+                EventBus.getDefault().
+                        post(new ConnectReturn("tastList count:"+taskList.size()));
             }
         }
     }
@@ -538,12 +576,12 @@ public class XmppManager {
                             + e.getMessage());
                     xmppManager.startReconnectionThread();
                 }finally{
-                	xmppManager.runTask();
+//                	xmppManager.runTask();
                 }
 
             } else {
                 Log.i(LOGTAG, "Logged in already");
-                xmppManager.runTask();
+//                xmppManager.runTask();
             }
 
         }
