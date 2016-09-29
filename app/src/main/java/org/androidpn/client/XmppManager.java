@@ -137,7 +137,9 @@ public class XmppManager {
             }
 
         };
-        addTask(runnable);
+//        addTask(runnable);
+        //直接提交任务运行
+        futureTask = taskSubmitter.submit(runnable);
     }
 
     public XMPPConnection getConnection() {
@@ -190,7 +192,7 @@ public class XmppManager {
 
     public void reregisterAccount() {
         removeAccount();
-        submitLoginTask();
+//        submitLoginTask();
 //        runTask();
     }
 
@@ -202,18 +204,11 @@ public class XmppManager {
         return futureTask;
     }
 
-    public void runTaskVector(){
-        taskVector.add(new ConnectTask());
-        taskVector.add(new RegisterTask());
-        taskVector.add(new LoginTask());
-        for (Runnable runnable : taskVector){
-            futureTask = taskSubmitter.submit(runnable);
-        }
-    }
+
 
     //z这个程序这里的写法很死板，他的目的只是想ConnectTask，RegisterTask ，LoginTask
     //依次执行
-   public void runTask() {
+/*   public void runTask() {
         Log.d(LOGTAG, "runTask()...");
         synchronized (taskList) {
             running = false;
@@ -235,7 +230,7 @@ public class XmppManager {
         }
         taskTracker.decrease();
         Log.d(LOGTAG, "runTask()...done");
-    }
+    }*/
 
     private String newRandomUUID() {
         String uuidRaw = UUID.randomUUID().toString();
@@ -265,12 +260,23 @@ public class XmppManager {
         runTaskVector();
     }
 
-    public void disconnect() {
+    //在这里把任务都提交到newSingleThreadExecutor依次执行
+    public void runTaskVector(){
+        taskVector.add(new ConnectTask());
+        taskVector.add(new RegisterTask());
+        taskVector.add(new LoginTask());
+        for (Runnable runnable : taskVector){
+            futureTask = taskSubmitter.submit(runnable);
+        }
+        taskVector.clear();
+    }
+
+   public void disconnect() {
         Log.d(LOGTAG, "disconnect()...");
         terminatePersistentConnection();
     }
 
-    private void submitConnectTask() {
+    /* private void submitConnectTask() {
         Log.d(LOGTAG, "submitConnectTask()...");
         addTask(new ConnectTask());
     }
@@ -303,7 +309,7 @@ public class XmppManager {
         }
         Log.d(LOGTAG, "addTask(runnable)... done");
     }
-
+*/
     private void removeAccount() {
         Editor editor = sharedPrefs.edit();
         editor.remove(Constants.XMPP_USERNAME);
