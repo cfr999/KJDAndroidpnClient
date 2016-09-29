@@ -75,6 +75,7 @@ public class NotificationService extends Service {
         notificationReceiver = new NotificationReceiver();
         connectivityReceiver = new ConnectivityReceiver(this);
         phoneStateListener = new PhoneStateChangeListener(this);
+        //单线程
         executorService = Executors.newSingleThreadExecutor();
         taskSubmitter = new TaskSubmitter(this);
         taskTracker = new TaskTracker(this);

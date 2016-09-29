@@ -23,6 +23,7 @@ import android.util.Log;
 
 import org.androidpn.event.ConnectReturn;
 import org.androidpn.event.ConnectSuccess;
+import org.androidpn.event.SearchSuccess;
 import org.greenrobot.eventbus.EventBus;
 import org.jivesoftware.smack.ConnectionConfiguration;
 import org.jivesoftware.smack.ConnectionConfiguration.SecurityMode;
@@ -43,6 +44,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.Vector;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 /**
@@ -80,7 +83,7 @@ public class XmppManager {
 
     private Handler handler;
 
-    //存储线程
+    //存储线程ArrayList
     private List<Runnable> taskList;
 
     //ArrayList是线程不安的，作者使用很多代码保证线程安全，不如直接使用Vector
@@ -92,8 +95,15 @@ public class XmppManager {
 
     private Thread reconnection;
 
+    private ExecutorService mCachedThreadPool;
+
+    private boolean isSearchSuccess = false;
+
     public XmppManager(NotificationService notificationService) {
         context = notificationService;
+        //不限线程数量
+        mCachedThreadPool = Executors.newCachedThreadPool();
+
         taskSubmitter = notificationService.getTaskSubmitter();
         taskTracker = notificationService.getTaskTracker();
         sharedPrefs = notificationService.getSharedPreferences();
@@ -142,37 +152,7 @@ public class XmppManager {
         futureTask = taskSubmitter.submit(runnable);
     }
 
-    public XMPPConnection getConnection() {
-        return connection;
-    }
 
-    public void setConnection(XMPPConnection connection) {
-        this.connection = connection;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public ConnectionListener getConnectionListener() {
-        return connectionListener;
-    }
-
-    public PacketListener getNotificationPacketListener() {
-        return notificationPacketListener;
-    }
     /*****
      * ZHANG 20160831 FIX SOME BUG
      * **/
@@ -257,12 +237,16 @@ public class XmppManager {
     public void connect() {
         Log.d(LOGTAG, "connect()...");
 //        submitLoginTask();
-        runTaskVector();
+        //add zhuzhaolin 2016.9.29
+//        runTaskVector();
+        searchServicAddress();
     }
 
-    //在这里把任务都提交到newSingleThreadExecutor依次执行
-    public void runTaskVector(){
-        taskVector.add(new ConnectTask());
+    //在这里把任务都提交到newSingleThreadExecutor依次执行 add zhuzhaolin 2016.9.29
+    public void runTaskVector(String address){
+        //寻找到正确的地址关闭寻找线程
+//        mCachedThreadPool.shutdown();
+        taskVector.add(new ConnectTask(address));
         taskVector.add(new RegisterTask());
         taskVector.add(new LoginTask());
         for (Runnable runnable : taskVector){
@@ -271,9 +255,53 @@ public class XmppManager {
         taskVector.clear();
     }
 
+    public void searchServicAddress(){
+        for (int i=0 ; i<256 ; i++){
+            SeacherAddressTask seacherAddressTask = new SeacherAddressTask(getPrefixPort()+i);
+            mCachedThreadPool.submit(seacherAddressTask);
+        }
+
+    }
+
+
+    private String getPrefixPort(){
+        return "192.168.1.";
+    }
+
    public void disconnect() {
         Log.d(LOGTAG, "disconnect()...");
         terminatePersistentConnection();
+    }
+    public XMPPConnection getConnection() {
+        return connection;
+    }
+
+    public void setConnection(XMPPConnection connection) {
+        this.connection = connection;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public ConnectionListener getConnectionListener() {
+        return connectionListener;
+    }
+
+    public PacketListener getNotificationPacketListener() {
+        return notificationPacketListener;
     }
 
     /* private void submitConnectTask() {
@@ -335,27 +363,22 @@ public class XmppManager {
     private class ConnectTask implements Runnable {
 
         final XmppManager xmppManager;
+        private String address;
 
-        private ConnectTask() {
+        private ConnectTask(String address) {
             this.xmppManager = XmppManager.this;
+            this.address = address;
         }
 
-        private String getPrefixPort(){
-            return "192.168.1.";
-        }
+
         ConnectionConfiguration connConfig;
         public void run() {
             Log.i(LOGTAG, "ConnectTask.run()...");
 
             if (!xmppManager.isConnected()) {
                 // Create the configuration for this new connection
-
-                for (int i = 0 ; i < 255 ; i++){
-                    String s = getPrefixPort() + i;
-                    connConfig = new ConnectionConfiguration(
-                            xmppHost, xmppPort);
-                    Log.d("ServicAddress" , s);
-                }
+                ConnectionConfiguration connConfig = new ConnectionConfiguration(
+                        address, xmppPort);
 
 //                ConnectionConfiguration connConfig = new ConnectionConfiguration(
 //                        xmppHost, xmppPort);
@@ -391,6 +414,93 @@ public class XmppManager {
                     /**
                      * ZHANG 20160901 ADD connect fail need drop register&login tash,and reconnect server
                      * 
+                     * **/
+                    xmppManager.dropTask(2);
+                    xmppManager.startReconnectionThread();
+//                    xmppManager.runTask();
+                }
+
+                //xmppManager.runTask(); ZHANG 20160901 REMOVE
+
+            } else {
+                //发送连接成功信息
+//                EventBus.getDefault().post(new ConnectReturn());
+
+                Log.i(LOGTAG, "XMPP connected already");
+//                xmppManager.runTask(); //已在runTask做处理，一次性提交任务，此时taskList为空。
+            }
+        }
+    }
+
+
+
+    /**
+     * A runnable task to connect the server.
+     */
+    private class SeacherAddressTask implements Runnable {
+
+        final XmppManager xmppManager;
+        private String address;
+
+        private SeacherAddressTask(String address) {
+            this.xmppManager = XmppManager.this;
+            this.address = address;
+        }
+
+
+
+        public void run() {
+            Log.i(LOGTAG, "ConnectTask.run()...");
+
+            if (!xmppManager.isConnected()) {
+                // Create the configuration for this new connection
+
+                ConnectionConfiguration connConfig = new ConnectionConfiguration(
+                        address, xmppPort);
+
+//                ConnectionConfiguration connConfig = new ConnectionConfiguration(
+//                        xmppHost, xmppPort);
+                // connConfig.setSecurityMode(SecurityMode.disabled);
+                connConfig.setSecurityMode(SecurityMode.required);
+                connConfig.setSASLAuthenticationEnabled(false);
+                connConfig.setCompressionEnabled(false);
+
+                XMPPConnection connection = new XMPPConnection(connConfig);
+                xmppManager.setConnection(connection);
+
+                try {
+                    //一直阻塞，直到连接成功
+                    // Connect to the server
+                    connection.connect();
+                    Log.i(LOGTAG, "XMPP connected successfully");
+                    //连接成功后运行其他两个任务
+                    if (isSearchSuccess != true){
+                        isSearchSuccess = true;
+                        xmppManager.runTaskVector(address);
+                        EventBus.getDefault().
+                                post(new ConnectReturn(address));
+                        // packet provider
+                        ProviderManager.getInstance().addIQProvider("notification",
+                                "androidpn:iq:notification",
+                                new NotificationIQProvider());
+                        mCachedThreadPool.shutdownNow();
+                    }
+
+
+                    //在这里提交其他连个任务,xmppManager.runTask在这里调用一次就够了，以后不用再调用了
+                    //因为里面的任务提交完了，剩下的就等待线程池依次执行这些任务（感觉本程序的作者对线程池不熟悉）
+//                    xmppManager.runTask();//ZHANG 20160901 ADD
+
+
+
+//                    EventBus.getDefault().
+//                            post(new ConnectReturn("tastList count:"+taskList.size()));
+
+                } catch (XMPPException e) {
+                    Log.e(LOGTAG, "XMPP connection failed", e);
+                    /**
+                     * ZHANG 20160901 ADD connect fail need drop register&login tash,and reconnect server
+                     *
                      * **/
                     xmppManager.dropTask(2);
                     xmppManager.startReconnectionThread();
@@ -511,8 +621,8 @@ public class XmppManager {
             } else {
                 Log.i(LOGTAG, "Account registered already");
 //                xmppManager.runTask();
-                EventBus.getDefault().
-                        post(new ConnectReturn("tastList count:"+taskList.size()));
+//                EventBus.getDefault().
+//                        post(new ConnectReturn("tastList count:"+taskList.size()));
             }
         }
     }
@@ -589,6 +699,8 @@ public class XmppManager {
                 Log.i(LOGTAG, "Logged in already");
 //                xmppManager.runTask();
             }
+
+//            mCachedThreadPool.shutdown();
 
         }
     }
