@@ -21,8 +21,6 @@ import android.content.SharedPreferences.Editor;
 import android.os.Handler;
 import android.util.Log;
 
-import org.androidpn.event.ConnectReturn;
-import org.androidpn.event.ConnectSuccess;
 import org.androidpn.event.SearchSuccess;
 import org.greenrobot.eventbus.EventBus;
 import org.jivesoftware.smack.ConnectionConfiguration;
@@ -477,8 +475,9 @@ public class XmppManager {
                     if (isSearchSuccess != true){
                         isSearchSuccess = true;
                         xmppManager.runTaskVector(address);
-                        EventBus.getDefault().
-                                post(new ConnectReturn(address));
+//                        EventBus.getDefault().
+//                                post(new ConnectReturn(address));
+                        EventBus.getDefault().post(new SearchSuccess());
                         // packet provider
                         ProviderManager.getInstance().addIQProvider("notification",
                                 "androidpn:iq:notification",

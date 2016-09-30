@@ -95,6 +95,7 @@ public class NotificationPacketListener implements PacketListener {
                 intent.putExtra(Constants.NOTIFICATION_URI, notificationUri);
 				intent.putExtra(Constants.NOTIFICATION_IMAGE_URI,
 						notificationimageUri);
+                intent.putExtra(Constants.NOTIFICATION_VIDEO_URI , notificationvideoUrl);
 
                 //                intent.setData(Uri.parse((new StringBuilder(
                 //                        "notif://notification.androidpn.org/")).append(

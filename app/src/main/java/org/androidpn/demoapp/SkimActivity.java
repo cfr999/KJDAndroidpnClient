@@ -7,14 +7,21 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.AbsListView;
 import android.widget.BaseAdapter;
+import android.widget.FrameLayout;
 import android.widget.GridView;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.MediaController;
+import android.widget.Toast;
 
 
 import org.androidpn.client.NotificationHistory;
+import org.androidpn.event.GetDataFromService;
 import org.androidpn.utils.ImageLoader;
 import org.androidpn.view.CustomVideoView;
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 import org.litepal.crud.DataSupport;
 
 import java.util.ArrayList;
@@ -43,7 +50,16 @@ public class SkimActivity extends Activity implements AbsListView.OnScrollListen
     private NotificationHistory mNotificationHistory;
     private LoadingView mLoadingView;
 
+    private LinearLayout mLinearLayout;
+    private FrameLayout mFrameLayout;
+    private com.mingle.widget.LoadingView mLoadingView58;
 
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        EventBus.getDefault().register(this);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,10 +76,14 @@ public class SkimActivity extends Activity implements AbsListView.OnScrollListen
     }
 
     private void initView() {
-
+        mFrameLayout = (FrameLayout) findViewById(R.id.wait_data);
+        mLinearLayout = (LinearLayout) findViewById(R.id.main);
         mImageView = (ImageView) findViewById(R.id.image);
         mVideoView = (CustomVideoView) findViewById(R.id.video_view);
         mLoadingView = (LoadingView) findViewById(R.id.guard_view);
+        mLoadingView58 = (com.mingle.widget.LoadingView) findViewById(R.id.loadView);
+
+
 //        mLoadingView.setLoadingRenderer(new GuardLoadingRenderer.Builder(this).build());
 //        if (mNotificationHistory != null){
             mImageLoader.bindBitmap( "http://pic41.nipic.com/20140518/4135003_102912523000_2.jpg",
@@ -90,6 +110,19 @@ public class SkimActivity extends Activity implements AbsListView.OnScrollListen
 
     }
 
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void getdatafromSevice(GetDataFromService getDataFromService){
+        Toast.makeText(this , getDataFromService.getData() , Toast.LENGTH_SHORT).show();
+
+        mLinearLayout.setVisibility(View.VISIBLE);
+//        mLoadingView58.setVisibility(View.GONE);
+        mFrameLayout.setVisibility(View.GONE);
+    }
+
+    @Override
+    public void onBackPressed() {
+        //不要返回到上一个activity
+    }
 
     private void initData() {
         String[] imageUrls = {
@@ -120,16 +153,9 @@ public class SkimActivity extends Activity implements AbsListView.OnScrollListen
                 "http://img4.duitang.com/uploads/item/201404/17/20140417105856_LTayu.thumb.700_0.jpeg",
                 "http://img04.tooopen.com/images/20130723/tooopen_20530699.jpg",
                 "http://www.qjis.com/uploads/allimg/120612/1131352Y2-16.jpg",
-                "http://pic.dbw.cn/0/01/33/59/1335968_847719.jpg",
-                "http://a.hiphotos.baidu.com/image/pic/item/a8773912b31bb051a862339c337adab44bede0c4.jpg",
-                "http://h.hiphotos.baidu.com/image/pic/item/f11f3a292df5e0feeea8a30f5e6034a85edf720f.jpg",
-                "http://img0.pconline.com.cn/pconline/bizi/desktop/1412/ER2.jpg",
-                "http://pic.58pic.com/58pic/11/25/04/91v58PIC6Xy.jpg",
-                "http://img3.3lian.com/2013/c2/32/d/101.jpg",
-                "http://pic25.nipic.com/20121210/7447430_172514301000_2.jpg",
-                "http://img02.tooopen.com/images/20140320/sy_57121781945.jpg",
-                "http://www.renyugang.cn/emlog/content/plugins/kl_album/upload/201004/852706aad6df6cd839f1211c358f2812201004120651068641.jpg"
+
         };
+
         for (String url : imageUrls) {
             mUrList.add(url);
         }
@@ -157,6 +183,7 @@ public class SkimActivity extends Activity implements AbsListView.OnScrollListen
     @Override
     protected void onStop() {
         super.onStop();
+        EventBus.getDefault().unregister(this);
 
     }
 }

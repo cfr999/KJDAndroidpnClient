@@ -25,7 +25,6 @@ import android.support.v7.widget.AppCompatCheckBox;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -35,7 +34,6 @@ import org.androidpn.client.NotificationDetailsActivity;
 import org.androidpn.client.NotificationHistoryActivity;
 import org.androidpn.client.ServiceManager;
 import org.androidpn.event.ConnectReturn;
-import org.androidpn.event.ConnectSuccess;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
@@ -228,12 +226,12 @@ public class DemoAppActivity extends Activity {
         
     }
 
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void JumpToSkimActivity(ConnectSuccess connectSuccess){
-        Toast.makeText(this , connectSuccess.getConnectSuccess() , Toast.LENGTH_SHORT).show();
-        startActivity(new Intent(this , SkimActivity.class));
-
-    }
+//    @Subscribe(threadMode = ThreadMode.MAIN)
+//    public void JumpToSkimActivity(GetDataFromService connectSuccess){
+//        Toast.makeText(this , connectSuccess.getConnectSuccess() , Toast.LENGTH_SHORT).show();
+//        startActivity(new Intent(this , SkimActivity.class));
+//
+//    }
 
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void isConnect(ConnectReturn connectReturn){

@@ -20,7 +20,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
-import org.androidpn.event.ConnectSuccess;
+import org.androidpn.event.GetDataFromService;
 import org.greenrobot.eventbus.EventBus;
 
 /** 
@@ -62,6 +62,7 @@ public final class NotificationReceiver extends BroadcastReceiver {
                     .getStringExtra(Constants.NOTIFICATION_URI);
 			String notificationImageUri = intent
 					.getStringExtra(Constants.NOTIFICATION_IMAGE_URI);
+            String notificationVideoUri = intent.getStringExtra(Constants.NOTIFICATION_VIDEO_URI);
 
             Log.d(LOGTAG, "notificationId=" + notificationId);
             Log.d(LOGTAG, "notificationApiKey=" + notificationApiKey);
@@ -75,7 +76,7 @@ public final class NotificationReceiver extends BroadcastReceiver {
                     notificationTitle, notificationMessage, notificationUri, notificationImageUri);
 
             //通知SkimActivity跳转
-            EventBus.getDefault().post(new ConnectSuccess());
+            EventBus.getDefault().post(new GetDataFromService(notificationImageUri , notificationVideoUri));
         }
 
         //        } else if (Constants.ACTION_NOTIFICATION_CLICKED.equals(action)) {
